@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal World</title>
+    <style>
+    </style>
+</head>
+<body>
+    <script>
+        class AnimalWorld {
+            static herbivores = [];
+            static carnivores = [];
+
+            static mealsHerbivores() {
+                this.herbivores.forEach(herbivore => {
+                    herbivore.eatGrass(); 
+                });
+            }
+
+            static mealsCarnivores() {
+                for (let i = 0; i < this.carnivores.length; i++) {
+                    if (this.herbivores[i]) {
+                        this.carnivores[i].eat(this.herbivores[i]); 
+                    }
+                }
+            }
+        }
+
+        class Continent {
+            #location = "";
+            #climate = "";
+            #temperature = "";
+
+            constructor(location, climate, temperature) {
+                this.#location = location;
+                this.#climate = climate;
+                this.#temperature = temperature;
+            }
+
+            show() {
+                return `Континент - ${this.#location};\nКлимат - ${this.#climate};\nТемпература - ${this.#temperature}`;
+            }
+        }       
+
+        class NorthAmerica extends Continent {
+            constructor() {
+                super("Северная Америка", "Тропический", "Высокие температуры");
+            }
+        }
+
+        class Africa extends Continent {
+            constructor() {
+                super("Африка", "Субэкваториальный", "Очень высокие температуры");
+            }
+        }
+
+        class Animal {
+            #location = "";
+
+            constructor(location) {
+                if (location instanceof Continent) {
+                    this.#location = location;
+                }
+            }
+
+            show() {
+                this.#location.show(); 
+            }
+        }
+
+        class Herbivore extends Animal {
+            #weight = 0;
+            #isAlive = true;
+
+            constructor(weight) {
+                super(new Continent());
+                if (weight > 0) {
+                    this.#weight = weight;
+                    AnimalWorld.herbivores.push(this);
+                } else {
+                    this.#isAlive = false; 
+                }
+            }
+
+            eatGrass() {
+                if (this.#isAlive) {
+                    this.#weight += 10;
+                } else {
+                    console.log(`Травоядное животное - умерло`);
+                }
+            }
+
+            get weight() {
+                return this.#weight;
+            }
+
+            set weight(value) {
+                if (value > 0) {
+                    this.#weight = value;
+                }
+            }
+
+            get isAlive() {
+                return this.#isAlive;
+            }
+
+            set isAlive(value) {
+                this.#isAlive = value;
+            }
+
+            show() {
+                super.show();
+                console.log(`Тип животного - травоядное;`);
+                console.log(`Вес - ${this.#weight};`);
+                if (this.#isAlive) {
+                    console.log('Живое');
+                } else {
+                    console.log('Мертвое');
+                }
+            }
+        }
+
+        class Wildebeest extends Herbivore {
+            #name = "";
+            #location = "";
+            constructor(weight) {
+                super(weight);
+                this.#location = new Africa();
+                this.#name = "Антилопа Гну";
+            }
+
+            show() {
+                super.show();
+                console.log(`Имя - ${this.#name}`);
+                console.log(this.#location.show());
+            }
+        }
+
+        class Bison extends Herbivore {
+            #name = "";
+            #location="";
+            constructor(weight) {
+                super(weight);
+                this.#location = new NorthAmerica();
+                this.#name = "Бизон";
+            }
+            show() {
+                super.show();
+                console.log(`Имя - ${this.#name}`);
+                console.log(this.#location.show());
+            }
+        }
+
+        class Carnivore extends Animal {
+            #power = 0;
+            #isAlive = true;
+
+            constructor(power) {
+                super(new Continent());
+                if (power > 0) {
+                    AnimalWorld.carnivores.push(this);
+                    this.#power = power;
+                } else {
+                    this.#isAlive = false; 
+                }
+            }
+
+            eat(herbivore) {
+                if (typeof herbivore === 'object' && herbivore instanceof Herbivore && herbivore.isAlive && this.#isAlive) {
+                    if (this.#power > herbivore.weight) {
+                        this.#power += 10;
+                        herbivore.isAlive = false;
+                    } else {
+                        this.#power -= 10;
+                        if (this.#power <= 0) {
+                            this.#isAlive = false;
+                        }
+                    }
+                }
+            }
+
+            show() {
+                console.log(`Тип животного - хищник;`);
+                console.log(`Сила - ${this.#power};`);
+                if (this.#isAlive) {
+                    console.log('Живое');
+                } else {
+                    console.log('Мертвое');
+                }
+            }
+        }
+
+        class Lion extends Carnivore {
+            #name = "";
+            #location="";
+            constructor(power) {
+                super(power);
+                this.#location = new Africa();
+                this.#name = "Лев";
+            }
+
+            show() {
+                super.show();
+                console.log(`Имя - ${this.#name}`);
+                console.log(this.#location.show());
+            }
+        }
+
+        class Wolf extends Carnivore {
+            #name = "";
+            #location="";
+            constructor(power) {
+                super(power);
+                this.#location = new NorthAmerica();
+                this.#name = "Волк";
+            }
+
+            show() {
+                super.show();
+                console.log(`Имя - ${this.#name}`);
+                console.log(this.#location.show());
+            }
+        }
+        let wolf1 = new Wolf(53);
+        wolf1.show();
+        let bison1 = new Bison(40);
+        bison1.show();
+        AnimalWorld.mealsHerbivores();
+        bison1.show();
+        AnimalWorld.mealsCarnivores();
+        wolf1.show();
+    </script>
+</body>
+</html>
